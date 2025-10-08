@@ -7,7 +7,7 @@ import { deleteUser, getProfile, updateProfile } from '../controllers/userContro
 const router= express.Router();
 
 router.get("/me",authMiddleware,getProfile)
-router.put("/me",authMiddleware,updateProfile);
+router.put("/me/profile",authMiddleware,updateProfile);
 router.delete("/me",authMiddleware,deleteUser);
 
 //router.get("/all", authMiddleware, roleMiddleware(["admin"]), getAllUsers);
