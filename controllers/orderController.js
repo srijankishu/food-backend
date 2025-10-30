@@ -93,8 +93,8 @@ export const getOrderById = async (req, res) => {
     const { id } = req.params;
 
     const order = await Order.findById(id)
-      .populate("customer", "name email")
-      .populate("vendor", "name email")
+      .populate("customerId", "name email")
+      .populate("vendorId", "name email")
     //  .populate("deliveryGuy", "name email")
       .populate("items.foodItemId", "name price");
 
@@ -106,8 +106,8 @@ export const getOrderById = async (req, res) => {
     if (
       req.user.role !== "admin" &&
       !(
-        order.customer?._id.equals(req.user.id) ||
-        order.vendor?._id.equals(req.user.id) //||
+        order.customerId?._id.equals(req.user.id) ||
+        order.vendorId?._id.equals(req.user.id) //||
        // order.deliveryGuy?._id.equals(req.user.id)
       )
     ) {
@@ -116,8 +116,8 @@ export const getOrderById = async (req, res) => {
 
     res.json({
       id: order._id,
-      vendor: order.vendor,
-      customer: order.customer,
+      vendor: order.vendorId,
+      customer: order.customerId,
      // deliveryGuy: order.deliveryGuy,
       items: order.items,
       orderType: order.orderType,
