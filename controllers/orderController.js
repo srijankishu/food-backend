@@ -2,47 +2,57 @@ import Order from "../models/orderModel.js"
 import FoodItem from "../models/FoodItem.js";
 
 
-export const createOrder=async(req,res)=>{
+export const createOrder = async (req, res) => {
+  try {
+    const { vendorId, items, orderType, deliveryAddress } = req.body;
 
-    try{
-
-        const {vendorId,items,orderType,deliveryAddress} = req.body;
-
-        if(!vendorId || !items || items.length===0){
-            return res.status(400).json({
-                msg:"vendor and items are required"
-            });
-        }
-
-        let totalPrice=0;
-
-        for(let item of items){
-            const food = await FoodItem.findById(item.foodItemId);
-            if(!food){
-                return res.status(404).json({ msg: `Food item not found: ${item.foodItemId}` });
-            }
-           
-           totalPrice += food.price * item.quantity;
-        }
-
-        const order = new Order({
-            customer:req.user.id,
-            vendor: vendorId,
-            items,
-            orderType: orderType || "normal",
-            deliveryAddress,
-            totalPrice,
-        });
-
-        await order.save();
-
-        res.status(201).json(order);
-
-    }catch(err){
-        res.status(500).json({ msg: err.message });
+    if (!vendorId) {
+      return res.status(400).json({ msg: "Vendor ID is required." });
     }
-};
 
+    let total = 0;
+
+    for (const item of items) {
+      const food = await FoodItem.findById(item.foodItemId);
+
+      if (!food) {
+        return res.status(404).json({ msg: `Food item not found: ${item.foodItemId}` });
+      }
+
+      // ✅ Use correct price field depending on order type
+      const price =
+        orderType === "instant"
+          ? food.instant_discount_price ?? food.instant_order_price
+          : food.advance_discount_price ?? food.advance_order_price;
+
+      if (!price) {
+        return res.status(400).json({ msg: `Price not available for item ${food.name}` });
+      }
+
+      total += price * item.quantity;
+    }
+
+    const newOrder = new Order({
+      customerId: req.user.id,
+      vendorId,
+      items,
+      totalPrice: total,
+      orderType,
+      deliveryAddress,
+    });
+
+    await newOrder.save();
+
+    res.status(201).json({
+      message: "Order placed successfully.",
+      orderId: newOrder._id,
+      totalPrice: newOrder.totalPrice,
+      status: newOrder.status,
+    });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
 
 
 

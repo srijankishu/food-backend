@@ -1,31 +1,30 @@
 import FoodItem from "../models/FoodItem.js";
 
- export const CreateFoodItems = async(req,res)=>{
-
-    try{
-
+export const CreateFoodItems = async (req, res) => {
+  try {
     if (req.user.role !== "vendor") {
       return res.status(403).json({ msg: "Only vendors can create food items" });
     }
 
     const foodItem = new FoodItem({
-        ...req.body,
-        vendorId:req.user.id,
+      ...req.body,
+      vendorId: req.user.id,
     });
 
     await foodItem.save();
+
     res.status(201).json({
       message: "Food item created successfully.",
       foodItemId: foodItem._id,
-    })
+      foodItem,
+    });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
 
-    }catch(err){
-        res.status(500).json({ msg: err.message });
-    }
- };
-
-
- export const getMyFoodItems = async (req, res) => {
+// ✅ Get all food items of logged-in vendor
+export const getMyFoodItems = async (req, res) => {
   try {
     if (req.user.role !== "vendor") {
       return res.status(403).json({ msg: "Only vendors can view their items" });
@@ -38,7 +37,7 @@ import FoodItem from "../models/FoodItem.js";
   }
 };
 
-// Update food item
+// ✅ Update food item (Vendor only)
 export const updateFoodItem = async (req, res) => {
   try {
     if (req.user.role !== "vendor") {
@@ -56,13 +55,14 @@ export const updateFoodItem = async (req, res) => {
     res.json({
       message: "Food item updated successfully.",
       foodItemId: item._id,
+      updatedItem: item,
     });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 };
 
-// Delete food item
+// ✅ Delete food item (Vendor only)
 export const deleteFoodItem = async (req, res) => {
   try {
     if (req.user.role !== "vendor") {
@@ -82,7 +82,7 @@ export const deleteFoodItem = async (req, res) => {
   }
 };
 
-// Public - Get all food items
+// ✅ Public - Get all food items
 export const getAllFoodItems = async (req, res) => {
   try {
     const items = await FoodItem.find().populate("vendorId", "name email");
@@ -91,4 +91,3 @@ export const getAllFoodItems = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
-
