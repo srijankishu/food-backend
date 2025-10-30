@@ -35,3 +35,17 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  try {
+    // ensure only admin can access this
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ msg: "Access denied: Admins only" });
+    }
+
+    const users = await User.find().select("-password");
+    res.status(200).json({ total: users.length, users });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};

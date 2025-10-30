@@ -12,6 +12,11 @@ import inventoryrequestRoutes from "./routes/inventoryRequestRoutes.js"
 import ingredientRoutes from "./routes/ingredientRoutes.js";
 import supportticketRoutes from "./routes/supportTicketRoutes.js"
 import vendordocsRoutes from "./routes/vendorDocumentRoutes.js"
+import reviewRoutes from "./routes/reviewsRoutes.js"
+import settingRoutes from "./routes/settingRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import vendorCategoryRoutes from "./routes/vendorCategoryRoutes.js";
+
 
 dotenv.config();
 
@@ -36,6 +41,10 @@ app.use("/inventory-requests",inventoryrequestRoutes)
 app.use("/ingredients",ingredientRoutes)
 app.use("/support-tickets",supportticketRoutes);
 app.use("/vendor-documents",vendordocsRoutes);
+app.use("/reviews",reviewRoutes);
+app.use("/settings",settingRoutes);
+app.use("/admin/categories",categoryRoutes);
+app.use("/vendor", vendorCategoryRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));

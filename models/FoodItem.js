@@ -21,6 +21,12 @@ const foodItemSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+     default: null,
+    }
+
   },
   { timestamps: true }
 );
