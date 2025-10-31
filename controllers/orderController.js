@@ -4,9 +4,9 @@ import FoodItem from "../models/FoodItem.js";
 
 export const createOrder = async (req, res) => {
   try {
-    const { vendorId, items, orderType, deliveryAddress } = req.body;
+    const { vendor, items, orderType, deliveryAddress } = req.body;
 
-    if (!vendorId) {
+    if (!vendor) {
       return res.status(400).json({ msg: "Vendor ID is required." });
     }
 
@@ -33,8 +33,8 @@ export const createOrder = async (req, res) => {
     }
 
     const newOrder = new Order({
-      customerId: req.user.id,
-      vendorId,
+      customer: req.user.id,
+      vendor,
       items,
       totalPrice: total,
       orderType,
@@ -78,6 +78,8 @@ export const getOrders = async (req, res) => {
     }
 
     const orders = await Order.find(filter)
+      .populate("vendor", "name email")
+      .populate("customer", "name email")
       .populate("items.foodItemId", "name price")
       .sort({ createdAt: -1 });
 
@@ -92,11 +94,13 @@ export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const order = await Order.findById(id)
-      .populate("customerId", "name email")
-      .populate("vendorId", "name email")
+  //  const order = await Order.findById(id)
+      const order = await Order.findById(id)
+          .populate("vendor", "name email")
+          .populate("customer", "name email")
+          .populate("items.foodItemId", "name advance_order_price instant_order_price");
     //  .populate("deliveryGuy", "name email")
-      .populate("items.foodItemId", "name price");
+  
 
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
@@ -106,8 +110,8 @@ export const getOrderById = async (req, res) => {
     if (
       req.user.role !== "admin" &&
       !(
-        order.customerId?._id.equals(req.user.id) ||
-        order.vendorId?._id.equals(req.user.id) //||
+        order.customer?._id.equals(req.user.id) ||
+        order.vendor?._id.equals(req.user.id) //||
        // order.deliveryGuy?._id.equals(req.user.id)
       )
     ) {
@@ -116,8 +120,8 @@ export const getOrderById = async (req, res) => {
 
     res.json({
       id: order._id,
-      vendor: order.vendorId,
-      customer: order.customerId,
+      vendor: order.vendor,
+      customer: order.customer,
      // deliveryGuy: order.deliveryGuy,
       items: order.items,
       orderType: order.orderType,
