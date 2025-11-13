@@ -16,6 +16,7 @@ import reviewRoutes from "./routes/reviewsRoutes.js"
 import settingRoutes from "./routes/settingRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import vendorCategoryRoutes from "./routes/vendorCategoryRoutes.js";
+import notificationRoutes from "./routes/notification.routes.js"
 
 
 dotenv.config();
@@ -45,6 +46,8 @@ app.use("/reviews",reviewRoutes);
 app.use("/settings",settingRoutes);
 app.use("/admin/categories",categoryRoutes);
 app.use("/vendor", vendorCategoryRoutes);
+app.use("/notifications", notificationRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
